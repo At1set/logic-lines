@@ -1,0 +1,45 @@
+.grid {
+  position: relative;
+}  
+
+.menu-items {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100px;
+  height: 100vh;
+}
+.menu-items__list {
+  display: block;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+} 
+.menu-items__item {
+  width: 100%;
+  height: 100px;
+  background-color: #00000061;
+  border: 1px solid #fff;
+}
+
+.menu-items__item:first-child {
+  position: relative;
+  padding: 8px;
+  display: block;
+}
+
+.menu-items__item:first-child::before {
+  content: '';
+  display: block;
+  position: absolute;
+  width: 80%;
+  height: 80%;
+  background-color: black;
+}
+
+.menu-items__item._active {
+  background-color: #00000061;
+  border: 10px solid #ffffffe0;
+}
