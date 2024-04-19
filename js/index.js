@@ -1,6 +1,6 @@
 import Placer from "./Placer.js";
 import Camera from "./Camera.js";
-import "./menu.js";
+import * as menu from "./menu.js";
 
 window.onload = () => {
   const canvas = document.getElementById("grid")
@@ -12,10 +12,11 @@ window.onload = () => {
   const canvas_width = canvas.width
   const canvas_height = canvas.height
 
-  const placer = new Placer(canvas);
-  const camera = new Camera(canvas, placer);
-  
-  let objects = []
+  let Placables = []
+
+  const placer = new Placer(canvas, Placables);
+  const camera = new Camera(canvas, Placables);
+  camera.update()
   
   let isPrint = false;
   let isDrag = false;
@@ -26,41 +27,22 @@ window.onload = () => {
   canvas.addEventListener('mousemove', (e) => {
     let mouseX = e.offsetX
     let mouseY = e.offsetY
+    camera.update()
     if (isPrint) {
       placer.print(mouseX, mouseY)
       objects.push({x: mouseX, y: mouseY})
     }
     if (isDrag) {
-      camera.position.x = resultPos.x - (zeroPoint.x - mouseX);
+      camera.position.x = resultPos.x + (zeroPoint.x - mouseX);
       camera.position.y = resultPos.y + (zeroPoint.y - mouseY);
       camera.update()
     }
     if (isPlace) {
-      canvas.style.cursor = "none"
-      camera.update()
-      ctx.fillRect(
-        mouseX - 50 * camera.scale,
-        mouseY - 50 * camera.scale,
-        100 * camera.scale,
-        100 * camera.scale
-      )
+      placer.movePlacable(mouseX, mouseY, {x: camera.position.x, y: camera.position.y}, camera.scale)
     }
   })
 
-  let isWorked = false;
-  function slowClear(delay) {
-    if (objects.length <= 0) return;
-    setTimeout(() => {
-      let coord = objects[0]
-      ctx.clearRect(coord.x-20, coord.y-20, 20, 20)
-      objects.shift()
-      if (objects.length > 0) return slowClear()
-      isWorked = false
-      return
-    }, delay)
-  }
-
-  document.addEventListener("keypress", (e) => {
+  document.addEventListener("keypress", (e) => { // KEYPRESS
     if (isWorked) return;
     if (e.code == "Space") {
       console.log(isWorked);
@@ -69,7 +51,7 @@ window.onload = () => {
     }
   })
 
-  document.addEventListener("wheel", (e) => {
+  document.addEventListener("wheel", (e) => { // WHEEL
     let scrollType = e.deltaY;
     if (scrollType < 0) {
       camera.Scale.add(0.1)
@@ -78,29 +60,29 @@ window.onload = () => {
     }
   })
 
-
   let zeroPoint = undefined
   let resultPos = undefined
-  canvas.addEventListener('mousedown', (e) => {
-    // isPrint = true;
+  canvas.addEventListener('mousedown', (e) => { // MOUSEDOWN
     isDrag = true;
-    canvas.style.cursor = "grabbing"
+    if (!isPlace) canvas.style.cursor = "grabbing"
     zeroPoint = {x: e.offsetX, y: e.offsetY}
     resultPos = {x: camera.position.x, y: camera.position.y}
   })
 
-  canvas.addEventListener("mouseup", (e) => {
-    // isPrint = false;
-    // placer.lastPos = null
+  canvas.addEventListener("mouseup", (e) => { // MOUSEUP
     isDrag = false;
-    canvas.style.cursor = "grab"
+    if (!isPlace) canvas.style.cursor = "grab"
   })
 
-  canvas.addEventListener("mouseleave", (e) => {
+  canvas.addEventListener("mouseleave", (e) => { // MOUSELEAVE
     isPrint = false
-    placer.lastPos = null
+    canvas.style.cursor = "default"
   })
 
-  
+  var menu_changeItem = () => {
+    placer.Placeble.set(menu.getActiveItem(), {x: 0, y: 0})
+  }
+
+  menu.menu_changeItemHandler.push(menu_changeItem.bind(this, placer, menu.getActiveItem))
 }
 

@@ -40,6 +40,6 @@
 }
 
 .menu-items__item._active {
-  background-color: #00000061;
+  /* background-color: #00000061; */
   border: 10px solid #ffffffe0;
 }
