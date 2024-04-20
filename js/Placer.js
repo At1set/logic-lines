@@ -1,10 +1,11 @@
 import Placable from "./Placable.js";
 
 export default class Placer {
-  constructor (canvas, Placables) {
+  constructor (canvas, Placables, global) {
     this.canvas = canvas
     this.ctx = canvas.getContext("2d")
     this.Placables = Placables
+    this.global = global
     this.lastPos = null
     this.ctx.lineJoin = "round"
     this.ctx.lineCap = "round"
@@ -23,18 +24,25 @@ export default class Placer {
     }
   }
 
-  movePlacable(ceilX, ceilY, offset, camera_scale) {
-    if (this.placeble) {
-      ceilX -= (ceilX % (100 * camera_scale)) 
-      ceilY -= (ceilY % (100 * camera_scale)) 
-      this.placeble.position = {x: ceilX, y: ceilY}
-      this.ctx.fillRect(
-        this.placeble.position.x * camera_scale + offset.x,
-        this.placeble.position.y * camera_scale - offset.y,
-        100 * camera_scale,
-        100 * camera_scale
-      )
-    }
+  movePlacable(x, y) {
+    if (!this.placeble) return
+    let ceilSize = this.global.camera.ceilSize;
+    let camera_scale = this.global.camera.scale;
+
+    let ceilX;
+    let ceilY
+
+    [ceilX, ceilY] = this.global.camera.WorldToCeil(x, y)
+    // console.log(ceilX, ceilY);
+
+    let size = ceilSize*camera_scale
+    this.ctx.fillRect(
+      ceilX,
+      ceilY,
+      10,
+      10
+    )
+    this.placeble.moveTo(ceilX, ceilY)
   }
 
   place () {

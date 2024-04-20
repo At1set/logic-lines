@@ -2,7 +2,9 @@ import Placer from "./Placer.js";
 import Camera from "./Camera.js";
 import * as menu from "./menu.js";
 
-window.onload = () => {
+window.onload = on_load
+
+function on_load() {
   const canvas = document.getElementById("grid")
 
   canvas.width = window.innerWidth
@@ -13,10 +15,13 @@ window.onload = () => {
   const canvas_height = canvas.height
 
   let Placables = []
+  let global = {}
 
-  const placer = new Placer(canvas, Placables);
-  const camera = new Camera(canvas, Placables);
+  const placer = new Placer(canvas, Placables, global);
+  const camera = new Camera(canvas, Placables, global);
   camera.update()
+  global.camera = camera;
+  global.placer = placer;
   
   let isPrint = false;
   let isDrag = false;
@@ -27,6 +32,7 @@ window.onload = () => {
   canvas.addEventListener('mousemove', (e) => {
     let mouseX = e.offsetX
     let mouseY = e.offsetY
+    // console.log(mouseX);
     camera.update()
     if (isPrint) {
       placer.print(mouseX, mouseY)
@@ -38,16 +44,7 @@ window.onload = () => {
       camera.update()
     }
     if (isPlace) {
-      placer.movePlacable(mouseX, mouseY, {x: camera.position.x, y: camera.position.y}, camera.scale)
-    }
-  })
-
-  document.addEventListener("keypress", (e) => { // KEYPRESS
-    if (isWorked) return;
-    if (e.code == "Space") {
-      console.log(isWorked);
-      isWorked = true;
-      slowClear(100)
+      placer.movePlacable(mouseX, mouseY)
     }
   })
 
@@ -76,13 +73,14 @@ window.onload = () => {
 
   canvas.addEventListener("mouseleave", (e) => { // MOUSELEAVE
     isPrint = false
+    isDrag = false
     canvas.style.cursor = "default"
   })
 
-  var menu_changeItem = () => {
+  function menu_changeItem() {
     placer.Placeble.set(menu.getActiveItem(), {x: 0, y: 0})
   }
 
-  menu.menu_changeItemHandler.push(menu_changeItem.bind(this, placer, menu.getActiveItem))
+  menu.menu_changeItemHandler.push(menu_changeItem.bind(this))
 }
 
